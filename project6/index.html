@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <div x-data="contactApp()" x-init="init()" class="max-w-6xl mx-auto p-4">
+        <h1 class="text-3xl font-bold mb-6 text-center">Gestionnaire de contacts</h1>
+
+        <div class="mb-4 flex flex-wrap gap-2 items-end">
+            <div class="flex-grow">
+                <label class="block text-sm mb-1">Rechercher</label>
+                <input type="text" x-model="searchQuery" placeholder="Nom, email..." class="w-full px-4 py-2 border rounded focus:outline focus:ring-2 focus:ring-blue-400">
+            </div>
+
+            <button @click="openModal()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded whitespace-nowrap">+ Nouveau Contact</button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <template x-for="contact in paginatedContacts" :key="contact.id">
+                <div class="bg-white shadow rounded p-4 border-l-4 border-blue-500 hover:shadow-lg transition">
+                    <h2 class="font-bold text-lg" x-text="contact.name"></h2>
+                    <p class="text-sm text-gray-600" x-text="contact.email"></p>
+                    <p class="mt-2 text-xs text-gray-500" x-text="contact.notes ? 'Note : '+contact.notes : ''"></p>
+                    <div class="mt-2 flex justify-between items-center">
+                        <span class="text-xs bg-gray-200 px-2 py-1 rounded" x-text="contact.tag || 'Aucun tag'"></span>
+                        <div>
+                            <button @click="editContact(contact)" class="text-blue-500 text-sm mr-2">✒️</button>
+                            <button @click="deleteContact(contact.id)" class="text-red-500 text-sm">❌</button>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <div class="mt-6 flex justify-center space-x-2">
+            <button @click="prevPage" :disabled="currentPage === 1" class="px-3 py-1 border rounded disabled:opacity-50">precedent</button>
+            <template x-for="page in totalPages" :key="page">
+                <button @click="goToPage(page)" :class="{'bg-blue-500 text-white' : currentPage === page, 'bg-white' : currentPage !== page}" class="px-3 py-1 border rounded" x-text="page"></button>
+            </template>
+            <button @click="nextPage" :disabled="currentPage === totalPages" class="px-3 py-1 border rounded disabled:opacity-50">suivant</button>
+        </div>
+
+        <div x-show="modalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white p-6 rounded shadow-lg w-full max-w-md" @click.away="closeModal">
+                <h2 class="text-xl font-bold mb-4" x-text="editingContact? 'Modifier le contact' : 'Ajouter un nouveau contact'"></h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block mb-1 font-medium">Nom</label>
+                        <input type="text" x-model="newContact.name" class="w-full border px-2 py-1 rounded focus:outline focus:ring-2 focus:ring-blue-400">
+                    </div>
+                    <div>
+                        <label class="block mb-1 font-medium">Email</label>
+                        <input type="email" x-model="newContact.email" class="w-full border px-2 py-1 rounded focus:outline focus:ring-2 focus:ring-blue-400">
+                    </div>
+                    <div>
+                        <label class="block mb-1 font-medium">Notes</label>
+                        <textarea x-model="newContact.notes" rows="3" class="w-full border px-2 py-1 rounded focus:outline focus:ring-2 focus:ring-blue-400"></textarea>
+                    </div>
+                    <div>
+                        <label class="block mb-1 font-medium">Tag</label>
+                        <input type="text" x-model="newContact.tag" class="w-full border px-2 py-1 rounded focus:outline focus:ring-2 focus:ring-blue-400" placeholder="ex: client, ami...">
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-end space-x-2">
+                    <button @click="closeModal" class="bg-gray-300 px-4 py-2 rounded">Annuler</button>
+                    <button @click="saveContact" class="bg-blue-500 text-white px-4 py-2 rounded">Enregistrer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function contactApp(){
+            return {
+                contacts: [],
+
+                newContact: {
+                    name: '',
+                    email: '',
+                    notes: '',
+                    tag: ''
+                },
+                
+                searchQuery: '',
+                currentPage: 1,
+                contactsPerPage: 6,
+
+                modalOpen: false,
+                editingContact: null,
+
+                init(){
+                    this.loadFromLocalStorage();
+                },
+
+                loadFromLocalStorage(){
+                    const saved = localStorage.getItem('contacts');
+                    if(saved) this.contacts = JSON.parse(saved);
+                },
+
+                saveToLocalStorage(){
+                    localStorage.setItem('contacts', JSON.stringify(this.contacts));
+                },
+
+                get filteredContacts(){
+                    return this.contacts.filter(contact => {
+                        const query = this.searchQuery.toLowerCase();
+                        return (
+                            contact.name.toLowerCase().includes(query) ||
+                            contact.email.toLowerCase().includes(query) ||
+                            (contact.tag && contact.tag.toLowerCase().includes(query)) ||
+                            (contact.notes && contact.notes.toLowerCase().includes(query))
+                        );
+                    });
+                },
+
+                get paginatedContacts(){
+                    const start = (this.currentPage - 1) * this.contactsPerPage;
+                    const end = start + this.contactsPerPage;
+                    return this.filteredContacts.slice(start, end);
+                },
+
+                get totalPages(){
+                    return Math.ceil(this.filteredContacts.length / this.contactsPerPage);
+                },
+
+                nextPage(){
+                    if(this.currentPage < this.totalPages) this.currentPage++;
+                },
+
+                prevPage(){
+                    if(this.currentPage > 1) this.currentPage--;
+                },
+
+                goToPage(page){
+                    if(page > 0 && page <= this.totalPages) this.currentPage = page;
+                },
+
+                openModal(contact = null){
+                    if(contact){
+                        this.newContact = {...contact};
+                        this.editingContact = contact;
+                    }else{
+                        this.newContact = {name: '', email: '', notes: '', tag: ''};
+                        this.editingContact = null;
+                    }
+                    this.modalOpen = true;
+                },
+
+                closeModal(){
+                    this.modalOpen = false;
+                },
+
+                saveContact(){
+                    if(!this.newContact.name.trim() || !this.newContact.email.trim()){
+                        alert("Veuillez remplir tous les champs")
+                        return;
+                    }
+
+                    if(this.editingContact){
+                        Object.assign(this.editingContact, this.newContact);
+                    }else{
+                        this.contacts.push({
+                            ...this.newContact,
+                            id: Date.now()
+                        });
+                    }
+
+                    this.saveToLocalStorage();
+                    this.closeModal();
+                    this.currentPage = 1;
+                    this.newContact = {name: '', email: '', notes: '', tag: ''};
+                },
+
+                deleteContact(id){
+                    if(confirm("Etes vous sûr de vouloir supprimer ce contact ? ")){
+                        this.contacts = this.contacts.filter(c => c.id !== id);
+                        this.saveToLocalStorage();
+                    }
+                },
+
+                editContact(contact){
+                    this.openModal(contact);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

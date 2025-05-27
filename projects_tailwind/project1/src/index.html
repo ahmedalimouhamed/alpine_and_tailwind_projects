@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./styles/output.css">
+</head>
+<body class="bg-gray-50 text-gray-900 antialiased">
+    <header class="bg-white shadow-sm sticky top-0 z-10">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-primary">Mon Projet</h1>
+            <nav>
+                <ul class="flex space-x-6">
+                    <li><a href="#home" class="font-medium hover:text-primary transition-colors">Accueil</a></li>
+                    <li><a href="#features" class="font-medium hover:text-primary transition-colors">Fonctionnalités</a></li>
+                    <li><a href="#contact" class="font-medium hover:text-primary transition-colors">Contact</a></li>
+                    <li><a href="#blog" class="font-medium hover:text-primary transition-colors">Blog</a></li>
+                </ul>
+            </nav>
+
+            <button id="theme-toggle" class="bp-2 rounded-full hover:bg-gray-100">
+                <span class="dark:hidden">🌙</span>
+                <span class="hidden dark:inline">☀️</span>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <section id="home" class="py-20 scroll-mt-header">
+            <div class="container mx-auto px-4">
+                <div class="flex flex-col md:flex-row items-center gap-8">
+                    <div class="md:w-1/2 animate-fade-in">
+                        <h2 class="text-4xl font-bold mb-4">Découvrez notre solution</h2>
+                        <p class="text-lg text-gray-600 mb-6">Une solution complète pour votre besoins en développement web moderne.</p>
+                        <div class="fkex space-x-4">
+                            <button class="btn btn-primary px-6 py-3">Commencer</button>
+                            <button class="btn px-3 py-3 border border-primary text-primary hover:bg-primary/10">En savoir plus</button>
+                        </div>
+                    </div>
+
+                    <div class="md:w-1/2">
+                        <img src="./images/hero.jpg" alt="Hero image" class="rounded-lg shadow w-full">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="py-20 bg-gray-100 scroll-mt-header">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-10">Nos fonctionnalités</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="card group bg-white rounded-lg shadow-lg hover:bg-gray-50 transition-colors">
+                        <div class="p-6">
+                            <div class="w-12 h-12 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                                <span class="text-2xl">🚀</span>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">Performance</h3>
+                            <p class="text-gray-600">Optimisé pour des temps de chargement ultra-rapides.</p>
+                        </div>
+                    </div>
+
+                    <div class="card group bg-white rounded-lg shadow-lg hover:bg-gray-50 transition-colors">
+                        <div class="p-6">
+                            <div class="w-12 h-12 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                                <span class="text-2xl">💻</span>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">Responsive</h3>
+                            <p class="text-gray-600">Adapté à tous les appareils et tailles d'écran.</p>
+                        </div>
+                    </div>
+
+                    <div class="card group bg-white rounded-lg shadow-lg hover:bg-gray-50 transition-colors">
+                        <div class="p-6">
+                            <div class="w-12 h-12 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                                <span class="text-2xl animate-spin-slow">🌀</span>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">Moderne</h3>
+                            <p class="text-gray-600">Utilise les dernières technologies pour une expérience utilisateur optimale.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="py-20 scroll-mt-header">
+            <div class="container mx-auto px-4 max-w-2xl">
+                <div class="card p-8">
+                    <h2 class="text-3xl font-bold mb-6">Contactez-nous</h2>
+                    <form id="contact-form" class="space-y-4">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nom</label>
+                            <input type="text" name="name" id="name" class="w-full px-4 py-2 border-gray-300 rounded-md focus:ring-primary focus:border-primary">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <input type="email" name="email" id="email" class="w-full px-4 py-2 border-gray-300 rounded-md focus:ring-primary focus:border-primary">
+                        </div>
+                        <div>
+                            <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                            <textarea name="message" id="message" rows="4" class="w-full px-4 py-2 border-gray-300 rounded-md focus:ring-primary focus:border-primary"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Envoyer</button>
+
+                        <span id="form-status" class="text-sm"></span>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <p>&copy; 2025 Mon Projet. Tous droits réservés.</p>
+                <div class="flex space-x-4 mt-4 md:mt-0">
+                    <a href="#" class="hover:text-primary-light transition-colors">Mentions légales</a>
+                    <a href="#" class="hover:text-primary-light transition-colors">Confidentialité</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="./assets/main.js" type="module"></script>
+</body>
+</html>

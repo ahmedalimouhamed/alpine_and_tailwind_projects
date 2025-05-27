@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+<body>
+  
+    <div x-data="{open:false}" class="p-4">
+        <button @click="open = !open" class="bg-blue-500 text-white px-4 py-2 rounded">Toggle</button>
+
+        <div class="mt-4 bg-gray-100 p-4 rounded" x-show="open">
+            Contenu visible quand "open" est vrai
+        </div>
+    </div>
+
+    <div x-data="{message:''}" class="p-4">
+        <input type="text" x-model="message" placeholder="Taper ici..." class="w-full border px-2 py-1 rounded">
+        <p class="mt-2 text-gray-600">Vous avez tapé <strong x-text="message"></strong></p>
+    </div>
+
+
+    <div x-data="{open:false}" class="max-w-md mx-auto mt-6">
+        <div class="border rounded">
+            <button @click="open = !open" class="w-full text-left p-4 bg-gray-200">
+                quel est la réponse ?
+            </button>
+
+            <div x-show="open" x-transition class="p-4">
+                voici la réponse à votre question.
+            </div>
+        </div>
+    </div>
+
+    <div x-data="{count:0}" class="flex items-center gap-4 p-4">
+        <button @click="count--" class="bg-red-500 text-white px-3 py-1 rounded">-</button>
+        <span x-text="count" class="text-xl font-bold"></span>
+        <button @click="count++" class="bg-green-500 text-white px-3 py-1 rounded">+</button>
+    </div>
+
+    <div x-data="{ open: false }" class="bg-gray-800 p-4 text-white">
+        <div class="flex justify-between items-center">
+          <span class="text-lg font-bold">Logo</span>
+          <button @click="open = !open" class="md:hidden text-white">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                 viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+         
+          <nav x-show="open" class="mt-2 md:hidden">
+            <a href="#" class="block py-2">Accueil</a>
+            <a href="#" class="block py-2">À propos</a>
+            <a href="#" class="block py-2">Contact</a>
+          </nav>
+  
+          <nav class="mt-2 hidden md:flex md:space-x-4">
+              <a href="#" class="block py-2">Accueil</a>
+              <a href="#" class="block py-2">À propos</a>
+              <a href="#" class="block py-2">Contact</a>
+          </nav>
+        </div>      
+    </div>
+
+    <div x-data="{selected:null}" class="max-w-md mx-auto mt-6">
+        <template x-for="i in 3" :key="i">
+            <div class="border-b">
+                <button @click="selected === i ? selected = null : selected = i" class="p-4 w-full text-left bg-gray-100">
+                    Section <span x-text="i"></span>
+                </button>
+                <div x-show="selected === i" x-transition class="px-2 py-2">
+                    Contenu de la section <span x-text="i"></span>
+                </div>
+            </div>
+        </template>
+    </div>
+<!--
+    <div x-data="{darkMode:false}" :class="{'dark' : darkMode}" class="min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white p-6">
+        <button @click="darkMode = !darkMode" class="px-4 py-2 bg-blue-600 text-white rounded">
+            Basculer le theme <span x-text="darkMode ? 'clair' : 'sombre'"></span>
+        </button>
+        <p class="mt-4">Ceci est un texte avec theme dynamique.</p>
+    </div>-->
+
+    <div x-data = "{tasks : [], newTask:''}" class="p-4 max-w-md mx-auto">
+        <input type="text" x-model="newTask" @keyup.enter="tasks.push(newTask); newTask=''" class="border px-2 py-1 rounded w-full" placeholder="Nouvelle tâche">
+
+        <ul class="mt-4 space-y-2">
+            <template x-for="(task, index) in tasks" :key="index">
+                <li class="flex justify-between items-center bg-gray-100 p-2 rounded">
+                    <span x-text="task"></span>
+                    <button @click="tasks.splice(index, 1)" class="text-red-500 font-bold">x</button>
+                </li>
+            </template>
+        </ul>
+    </div>
+
+    <div x-data="{tooltip:false}" class="relative p-5">
+        <button @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="bg-blue-500 text-white px-4 py-2 rounded">
+            surlevez-moi
+        </button>
+        <div x-show="tooltip" x-transition class="absolute top-full mt-1 bg-black text-white text-sm px-2 py-1 rounded">
+            Ceci est un tooltip
+        </div>
+    </div>
+
+    <div x-show="loading" x-transition class="mt-4 flex items-center gap-2">
+        <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Chargement...
+    </div>
+</body>
+</html>

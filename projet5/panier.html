@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6" x-data="shop()">
+    <div class="max-w-6xl mx-auto grid md:grid-cols-3 gap-6">
+        <template x-for="product in products" :key="product.id">
+            <div class="bg-white shadow rounded p-4">
+                <h2 class="text-lg font-bold mb-2" x-text="product.name"></h2>
+                <p class="text-gray-700 mt-2" x-text="product.price.toFixed(2) + ' €'"></p>
+                <button @click="addToCart(product)" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded">
+                    Ajouter au panier
+                </button>
+            </div>
+        </template>
+    </div>
+
+    <div class="max-w-4xl mx-auto mt-10 bg-white p-6 rounded shadow">
+        <h2 class="text-2xl font-bold mb-4">Mon Panier</h2>
+        <template x-if="cart.length === 0">
+            <p class="text-gray-500">Le panier est vide</p>
+        </template>
+
+        <template x-for="(item, index) in cart" :key="item.id">
+            <div class="flex justify-between items-center py-2 border-b">
+                <div>
+                    <span class="font-semibold" x-text="item.name"></span><br>
+                    <small>Prix Unitaire : <span x-text="item.price.toFixed(2)"></span> €</small>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                    <button @click="decreaseQty(index)" class="px-2 bg-gray-200 rounded">-</button>
+                    <span x-text="item.qty"></span>
+                    <button @click="increaseQty(index)" class="px-2 bg-gray-200 rounded">+</button>
+                </div>
+                    
+                <div>
+                    <span class="font-bold ml-4" x-text="(item.qty * item.price).toFixed(2)+ ' €'"></span>
+                    <button @click="removeItem(index)" class="text-red-500 ml-4">X</button>
+                </div>
+            </div>
+        </template>
+
+        <div class="text-right mt-4 font-bold text-xl">
+            Total : <span x-text="total().toFixed(2)"></span> €
+        </div>
+    </div>
+    
+
+    <script>
+        function shop(){
+            return{
+                products: [
+                    {id:1, name:"Produit A", price:19.99},
+                    {id:2, name:"Produit B", price:29.99},
+                    {id:3, name:"Produit C", price:39.99}
+                ],
+
+                cart: [],
+
+                addToCart(product){
+                    let found = this.cart.find(item => item.id === product.id);
+
+                    if(found){
+                        found.qty++;
+                    }else{
+                        this.cart.push({...product, qty: 1});
+                    }
+                },
+
+                removeItem(index){
+                    this.cart.splice(index, 1);
+                },
+
+                increaseQty(index){
+                    this.cart[index].qty++;
+                },
+
+                decreaseQty(index){
+                    this.cart[index].qty--;
+                    if(this.cart[index].qty === 0){
+                        this.removeItem(index);
+                    }
+                },
+
+                total(){
+                    return this.cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

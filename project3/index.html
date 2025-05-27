@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <div x-data="posApp()" class="max-w-6xl mx-auto p-4">
+        <h1 class="text-3xl font-bold mb-6 text-center">Systeme de caisse (POS)</h1>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="bg-white shadow rounded p-4">
+                <h2 class="font-semibold text-lg mb-2">Produit</h2>
+                <div class="space-y-2">
+                    <template x-for="product in products" :key="product.id">
+                        <button @click="addToOrder(product)" class="w-full text-left p-2 border rounded hover:bg-blue-50 flex justify-between items-center">
+                            <span x-text="product.name"></span>
+                            <span x-text="`${product.price} €`" class="font-medium"></span>
+                        </button>
+                    </template>
+                </div>
+            </div>
+
+            <div class="bg-white shadow rounded p-4">
+                <h2 class="font-semibold text-lg mb-2">Commande</h2>
+
+                <div class="mb-4">
+                    <label class="block text-sm mb-1">Client</label>
+                    <select x-model="selectedCustomerId" class="w-full p-2 border rounded">
+                        <option value="">-- Selectionner un client --</option>
+                        <template x-for="customer in customers" :key="customer.id">
+                            <option :value="customer.id" x-text="customer.name"></option>
+                        </template>
+                    </select>
+                </div>
+
+                <ul class="space-y-2 mb-4 max-h-64 overflow-y-auto">
+                    <template x-for="(item, index) in orderItems" :key="index">
+                        <li class="flex items-center justify-between border-b pb-1">
+                            <span x-text="item.product.name"></span>
+                            <div class="flex items-center space-x-2">
+                                <input type="number" min="1" x-model.number="item.quantity" class="w-12 text-center border rounded p-1">
+                                <span x-text="`${item.product.price * item.quantity.toFixed(2)} €`" class="font-medium"></span>
+                                <button @click="removeItem(index)" class="text-red-500 text-sm">X</button>
+                            </div>
+                        </li>
+                    </template>
+                </ul>
+
+                <div class="border-t pt-2 space-y-1">
+                    <p>Total HT : <span x-text="totalHT.toFixed(2) + ' €'"></span></p>
+                    <p>TVA (20%): <span x-text="totalTVA.toFixed(2) + ' €'"></span></p>
+                    <p class="font-bold">Total TTC : <span x-text="totalTTC.toFixed(2) + ' €'"></span></p>
+                </div>
+
+                <button @click="checkout" class="mt-4 w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded">
+                    Valider la vente
+                </button>
+            </div>
+
+            <div class="bg-white shadow rounded p-4">
+                <h2 class="font-semibold text-lg mb-2">Facture</h2>
+                <div x-show="orderHistory.length === 0" class="text-gray-500 text-center">Aucune vente enregistrée</div>
+                <div x-show="orderHistory.length > 0" class="space-y-4">
+                    <template x-for="order in orderHistory" :key="order.id">
+                        <div class="border p-3 rounded">
+                            <p><strong>Client : </strong> <span x-text="getCustomerName(order.customerId)"></span></p>
+                            <ul class="ml-4 mt-2 space-y-1">
+                                <template x-for="item in order.items" :key="item.product.id">
+                                    <li x-text="`${item.product.name} x ${item.quantity} = ${item.total.toFixed(2)}`"></li>
+                                </template>
+                            </ul>
+                            <p class="font-bold mt-2" x-text="`Total : ${order.totalTTC.toFixed(2)} €`"></p>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>    
+
+    <script>
+        function posApp(){
+            return {
+                products : [
+                    {id: 1, name: "Cahier", price:2.99, image: "https://picsum.photos/id/10/400/300"},
+                    {id: 2, name: "Livre", price:15.99, image: "https://picsum.photos/id/10/400/300"},
+                    {id: 3, name: "Stylo", price:1.99, image: "https://picsum.photos/id/10/400/300"},
+                    {id: 4, name: "Sac", price:12.99, image: "https://picsum.photos/id/10/400/300"},
+                    {id: 5, name: "Chaise", price:19.99, image: "https://picsum.photos/id/10/400/300"},
+                ],
+
+                customers : [
+                    {id: 1, name: "Client 1"},
+                    {id: 2, name: "Client 2"},
+                    {id: 3, name: "Client 3"},
+                ],
+
+                orderHistory : [],
+                selectedCustomerId : null,
+                orderItems : [],
+
+                addToOrder(product){
+                    const existing = this.orderItems.find(item => item.product.id === product.id);
+
+                    if(existing){
+                        existing.quantity++;
+                    }else{
+                        this.orderItems.push({product: {...product}, total: product.price, quantity: 1});
+                    }
+                },
+
+                removeItem(index){
+                    this.orderItems.splice(index, 1);
+                },
+
+                get totalHT(){
+                    return this.orderItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+                },
+
+                get totalTVA(){
+                    return this.totalHT * 0.2;
+                },
+
+                get totalTTC(){
+                    return this.totalHT + this.totalTVA;
+                },
+
+
+                checkout(){
+                    if(this.orderItems.length === 0){
+                        alert("Lacommande est vide!");
+                        return;
+                    }
+
+                    const order = {
+                        id : Date.now(),
+                        customerId: this.selectedCustomerId,
+                        items: [...this.orderItems],
+                        totalTTC: this.totalTTC,
+                    };
+
+                    this.orderHistory.push(order);
+                    this.orderItems = [];
+                    this.selectedCustomerId = "";
+                    alert("Vente Validée!");
+                },
+
+                getCustomerName(id){
+                    const customer = this.customers.find(c => c.id === parseInt(id));
+                    return customer ? customer.name : "Inconnu";
+                }
+                
+            }
+        }
+    </script>
+</body>
+</html>
