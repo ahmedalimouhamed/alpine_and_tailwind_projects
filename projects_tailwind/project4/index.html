@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+</head>
+<body class="font-sans antialiased">
+    <div x-data="app()" class="min-h-screen flex">
+
+        <aside class="w-64 bg-dark text-white hidden md:block">
+            <div class="p-6">
+                <h1 class="text-xl font-bold">MyProject</h1>
+            </div>
+
+            <nav class="p-4 screen-y-2">
+                <a href="" class="block hover:bg-gray-700 p-2 rounded">Tableau de bord</a>
+                <a href="" class="block hover:bg-gray-700 p-2 rounded">Projets</a>
+                <a href="" class="block hover:bg-gray-700 p-2 rounded">Paramètres</a>
+            </nav>
+        </aside>
+
+        <main class="flex-1 p-6 overflow-auto">
+            <header class="flex justify-between items center mb-6 md:hidden">
+                <h2 class="text-xl font-bold">Mes Projets</h2>
+                <button @click="sidebarOpen = !sidebarOpen" class="text-gray-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                    </svg>
+                </button>
+            </header>
+
+            <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <template x-for="project in projects" :key="project.id">
+                    <div class="card">
+                        <h3 class="font-semibold text-lg" x-text="project.name"></h3>
+                        <p class="text-sm text-gray-600 mt-1" x-text="project.description"></p>
+                        <div class="mt-4 flex justify-between items-center">
+                            <span class="tect-xs text-gray-500" x-text="`${project.tasks.length} tâches`"></span>
+                            <button @click="openTaskModal(project)" class="btn btn-primary text-xs">voir les tâches</button>
+                        </div>
+                    </div>
+                </template>
+            </section>
+
+            <div x-show="modalOpen" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div class="bg-white p-6 rounded shadow-lg w-full max-w-md" @click.away="closeModal">
+                    <h2 class="text-xl font-bold mb-4" x-text="selectedProject?.name"></h2>
+                    <ul class="space-y-2">
+                        <template x-for="(task, idx) in selectedProject?.tasks || []" :key="idx">
+                            <li class="flex items-center space-x-2">
+                                <input type="checkbox" x-model="task.done" class="form-checkbox h-5 w-5 text-blue-600">
+                                <span :class="task.done ? 'line-through text-gray-400' : ''" x-text="task.title"></span>
+                            </li>
+                        </template>
+                    </ul>
+
+                    <div class="mt-4">
+                        <label for="" class="block text-sm mb-1">Nouvelle tâche</label>
+                        <div class="flex space-x-2">
+                            <input type="text" x-model="newTask" placeholder="Ajouter une tâche..." class="input flex-grow">
+                            <button @click="addTask" class="btn btn-primary text-sm">+</button>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex justify-end">
+                        <button class="btn btn-secondary text-sm" @click="closeModal">Fermer</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+    </div>
+
+    <script>
+        function app(){
+            return {
+                modalOpen: false,
+                newTask: '',
+                selectedProject: null,
+                projects: [
+                    {
+                        id: 1,
+                        name: 'Projet A',
+                        description: 'Refonte du site web',
+                        tasks: [
+                            {title: "Design UI", done:true},
+                            {title: "Intégration front-end", done:false},
+                            {title: "Optimisation SEO", done:false}
+                        ],
+                    },
+                    {
+                        id: 2,
+                        name: 'Projet B',
+                        description: 'Application mobile',
+                        tasks: [
+                            {title: "Spécifications", done:true},
+                            {title: "Développement", done:false},
+                            {title: "Test", done:false}
+                        ],
+                    }   
+                ],
+
+                openTaskModal(project){
+                    this.selectedProject = project;
+                    this.modalOpen = true;
+                },
+
+                closeModal(){
+                    this.modalOpen = false;
+                    this.newTask = '';
+                },
+
+                addTask(){
+                    if(!this.newTask.trim()) return;
+
+                    this.selectedProject.tasks.push({
+                        title: this.newTask,
+                        done: false
+                    })
+
+                    this.newTask = '';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

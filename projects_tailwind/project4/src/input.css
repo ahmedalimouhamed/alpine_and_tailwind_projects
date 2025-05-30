@@ -1,0 +1,18 @@
+@config "../tailwind.config.js";
+@import "tailwindcss";
+
+
+@tailwind base;
+@tailwind components;
+
+*, *::before, *::after {
+    @apply box-border;
+}
+
+body{
+    @apply font-sans text-gray-800 bg-gray-100
+}
+
+@tailwind utilities;
+
+@import "./components.css";
